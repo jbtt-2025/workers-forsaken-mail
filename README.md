@@ -1,28 +1,24 @@
-Cloudflare Workers mail version
-===============================
+Cloudflare Workers 版本说明
+==========================
+本目录是 Forsaken Mail 的 Cloudflare Workers 重写版：前端保持不变，后端改为 Workers Email + D1。
 
-This folder contains a Cloudflare Workers rewrite of Forsaken Mail that keeps the existing frontend untouched while replacing the backend with Workers Email + D1.
-
-Features
+一键部署
 --------
-- Workers Email handler stores incoming messages into D1 and blocks senders/domains via env vars.
-- Socket.IO-compatible long-polling endpoint for the existing UI (`/socket.io/`), including shortid assignment and live mail pushes.
-- Static assets served from `public` via the Workers asset binding.
-- Scheduled cleanup that removes messages older than 7 days.
-- On-page load, the worker lazily ensures the D1 schema exists (table + indexes).
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/jbtt-2025/workers-forsaken-mail)
 
-Running locally
----------------
-1) Install `wrangler` if you have not already.
-2) Update `worker_version/wrangler.toml` with your D1 binding and env vars:
-   - `MAIL_DOMAIN`: domain configured for Workers Email routing (no auto-detection).
-   - `PRE_BLACKLIST`: comma-separated mailbox prefixes to block.
-   - `BAN_SEND_FROM_DOMAIN`: comma-separated sender domains to reject.
-3) Create the D1 database and attach it to the binding `DB`.
-4) Run `wrangler dev --config worker_version/wrangler.toml`.
+部署后在 Cloudflare 控制台完成：
+- 绑定 D1：binding 名为 `DB`，并在 `worker_version/wrangler.toml` 填入你的 `database_id`。
+- 环境变量：`MAIL_DOMAIN`（邮箱域名）、`PRE_BLACKLIST`（前缀黑名单，逗号分隔）、`BAN_SEND_FROM_DOMAIN`（拒收域名，逗号分隔）。
+- 邮件路由：为 `MAIL_DOMAIN` 配置 Email Routing/MX，并把同一个 Worker 绑定到 Email 入口。
+- 定时清理：`wrangler.toml` 已含 cron（每日 0 点清理 7 天前邮件）。
 
-Deploying
+本地/调试
 ---------
-1) Add an Email Worker route for the same worker so inbound mail hits the `email` handler.
-2) Deploy with `wrangler deploy --config worker_version/wrangler.toml`.
-3) Ensure MX/SMTP routing to Cloudflare is configured for `MAIL_DOMAIN`.
+1) 安装 `wrangler`。  
+2) 创建并绑定 D1 数据库，确保 binding 名称为 `DB`。  
+3) 在 `worker_version/wrangler.toml` 设置你的环境变量。  
+4) 运行：`wrangler dev --config worker_version/wrangler.toml`。
+
+项目链接
+--------
+Cloudflare 版本仓库：https://github.com/jbtt-2025/workers-forsaken-mail
