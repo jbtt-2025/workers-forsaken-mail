@@ -1,0 +1,26 @@
+name = "forsaken-mail-worker"
+main = "src/worker.js"
+compatibility_date = "2024-12-01"
+workers_dev = true
+usage_model = "unbound"
+
+[assets]
+directory = "public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[triggers]
+crons = ["0 0 * * *"]
+
+[vars]
+# Required: domain configured for Workers Email routing (e.g. "mail.example.com")
+MAIL_DOMAIN = "example.com"
+# Optional: comma-separated blacklist for mailbox prefixes
+PRE_BLACKLIST = "admin,master,info,mail,webadmin,webmaster,noreply,system,postmaster"
+# Optional: comma-separated list of sender domains to block
+BAN_SEND_FROM_DOMAIN = ""
+
+[[d1_databases]]
+binding = "DB"
+database_name = "forsaken-mail"
+database_id = "YOUR_DATABASE_ID"
